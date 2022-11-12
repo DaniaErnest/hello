@@ -12,10 +12,6 @@ jobs:
       uses: actions/checkout@v3
       with:
         fetch-depth: 0
-        repository: DaniaErnest/git-tag
-        token: ${{ secrets.GIT_TOKEN }}
-        path: ./.github/actions/koji-gh-action-git-gitversion
-        ref: main
         
     - name: List Files After Checkout
       run: |
