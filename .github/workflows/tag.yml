@@ -30,14 +30,14 @@ jobs:
           ls -la
           ls -a
     #- name: install git
-      #run: |
-     #    git init
-      #   git remote add origin git@github.com:DaniaErnest/Anonymous.git
+    # run: |
+    #    git init
+    #   git remote add origin git@github.com:DaniaErnest/Anonymous.git
          
     - name: remote
       run: |
          git remote -v
-        git checkout -b main
+         #git checkout -b main
          git branch --show-current
     - name: Configure git to trust the workspace despite the different owner
       run:
