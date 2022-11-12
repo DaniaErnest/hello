@@ -1,8 +1,8 @@
 name: Build-and-deploy
 on:
- pull_request:
-    types:
-      - opened
+
+worklow_dispatch
+
 jobs:
   build-tag:
     runs-on: ubuntu-20.04
