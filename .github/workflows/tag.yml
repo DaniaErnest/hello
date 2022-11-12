@@ -1,0 +1,49 @@
+name: Build-and-deploy
+on:
+  push:
+
+jobs:
+  build-tag:
+    runs-on: ubuntu-latest
+    steps:  
+    - name: List Files
+      run: |
+          pwd
+          ls -a
+          echo $GITHUB_SHA
+          echo $GITHUB_REPOSITORY
+          echo $GITHUB_WORKSPACE
+          echo "${{ github.token }}"
+    
+    # Checking out latest koji-gh-action-git-version
+    - name: Checkout Git Version
+      uses: actions/checkout@v3
+      with:
+        repository: DaniaErnest/git-tag
+        token: ${{ secrets.GIT_TOKEN }}
+        path: ./.github/actions/koji-gh-action-git-gitversion
+        ref: refs/heads/main
+        fetch-depth: 0
+    - name: List Files After Checkout
+      run: |
+          pwd
+          ls -la
+          ls -a
+    #- name: install git
+      #run: |
+     #    git init
+      #   git remote add origin git@github.com:DaniaErnest/Anonymous.git
+         
+    - name: remote
+      run: |
+         git remote -v
+        git checkout -b main
+         git branch --show-current
+    - name: Configure git to trust the workspace despite the different owner
+      run:
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
+        
+    # Determining Version
+    #- name: Determine Version
+    #  id: my-tag
+      #uses: ./.github/actions/koji-gh-action-git-gitversion
