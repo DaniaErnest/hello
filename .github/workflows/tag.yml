@@ -1,44 +1,46 @@
-name: Build-and-deploy
+name: Create release tag
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
-  build-tag:
-    runs-on: ubuntu-20.04
+  create-release-tag:
+    runs-on: ubuntu-latest
     steps:
-    # Checking out latest koji-gh-action-git-version
-    - name: Checkout Git Version
-      uses: actions/checkout@v3
-      with:
-       repository: DaniaErnest/git-tag
-       token: ${{ secrets.GIT_TOKEN }}
-       path: ./.github/actions/koji-gh-action-git-gitversion
-       ref: main
-       fetch-depth: 0
-        
-    - name: List Files After Checkout
-      run: |
-          pwd
-          ls -la
-          ls -a
-    #- name: install git
-    # run: |
-    #    git init
-    #   git remote add origin git@github.com:DaniaErnest/Anonymous.git
-         
-    - name: remote
-      run: |
-         git remote -v
-         #git checkout -b main
-         git branch --show-current
-    - name: Configure git to trust the workspace despite the different owner
-      run:
-        git config --global --add safe.directory "$GITHUB_WORKSPACE"
-        
-    # Determining Version
-    #- name: Determine Version
-    #  id: my-tag
-      #uses: ./.github/actions/koji-gh-action-git-gitversion
+
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: '0'
+
+      - name: Bump version and push tag
+        id: tag_version
+        uses: anothrNick/github-tag-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: true
+          DEFAULT_BUMP: patch
+
+      - name: Create a GitHub release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ steps.tag_version.outputs.new_tag }}
+          name: Release ${{ steps.tag_version.outputs.new_tag }}
+          body: ${{ steps.tag_version.outputs.changelog }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Trigger Build and Deployment to Production
+        id: trigger-prod-deploy
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+                workflow_id: "deploy-prod.yaml",
+                ref: "${{ github.ref }}",
+                inputs: {
+                  tag: "${{ steps.tag_version.outputs.new_tag }}"
+                }
+            })
