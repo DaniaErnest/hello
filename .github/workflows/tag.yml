@@ -38,7 +38,7 @@ jobs:
             github.rest.actions.createWorkflowDispatch({
               owner: context.repo.owner,
               repo: context.repo.repo,
-                workflow_id: "deploy-prod.yaml",
+                workflow_id: "hello.yaml",
                 ref: "${{ github.ref }}",
                 inputs: {
                   tag: "${{ steps.tag_version.outputs.new_tag }}"
